@@ -28,3 +28,26 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });
+
+app.post("/users", (req, res) => {
+  const { name, email, password } = req.body;
+
+  // Validation des données d'entrée
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "Tous les champs sont requis." });
+  }
+
+  // Préparer l'insertion dans la base de données
+  const stmt = db.prepare(
+    "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
+  );
+
+  // Exécuter la requête SQL pour insérer un nouvel utilisateur
+  stmt.run(name, email, password, function (err) {
+    if (err) {
+      return res.status(500).json({ message: "Erreur serveur", error: err });
+    }
+    // Retourner une réponse avec l'ID du nouvel utilisateur
+    res.status(201).json({ id: this.lastID, name, email });
+  });
+});
