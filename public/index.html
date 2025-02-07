@@ -69,11 +69,11 @@
           fetch("http://localhost:5000/users", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ first_name, last_name, email, age }),
+            body: JSON.stringify({ first_name, last_name, email, age: Number(age) }),
           })
             .then((response) => response.json())
             .then((data) => {
-              alert("Utilisateur ajouté avec succès !");
+              alert(data.message); // Show success or error message
               document.getElementById("userForm").reset();
             })
             .catch((error) => console.error("Erreur :", error));
