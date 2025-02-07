@@ -15,7 +15,7 @@ const db = new sqlite3.Database("./users.db", (err) => {
   } else {
     console.log("Base de données connectée !");
     db.run(
-      "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, password TEXT)"
+      "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT NOT NULL, last_name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, age INTEGER NOT NULL)"
     );
   }
 });
@@ -30,24 +30,26 @@ app.listen(PORT, () => {
 });
 
 app.post("/users", (req, res) => {
-  const { name, email, password } = req.body;
+  const { first_name, last_name, email, age } = req.body;
 
   // Validation des données d'entrée
-  if (!name || !email || !password) {
+  if (!first_name || !last_name || !email || !age) {
     return res.status(400).json({ message: "Tous les champs sont requis." });
   }
 
   // Préparer l'insertion dans la base de données
   const stmt = db.prepare(
-    "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
+    "INSERT INTO users (first_name, last_name, email, age) VALUES (?, ?, ?, ?)"
   );
 
   // Exécuter la requête SQL pour insérer un nouvel utilisateur
-  stmt.run(name, email, password, function (err) {
+  stmt.run(first_name, last_name, email, age, function (err) {
     if (err) {
       return res.status(500).json({ message: "Erreur serveur", error: err });
     }
     // Retourner une réponse avec l'ID du nouvel utilisateur
-    res.status(201).json({ id: this.lastID, name, email });
+    res
+      .status(201)
+      .json({ id: this.lastID, first_name, last_name, email, age });
   });
 });
